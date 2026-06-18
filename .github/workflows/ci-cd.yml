@@ -23,3 +23,21 @@ jobs:
 
     - name: Push Image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+    - name: Pull latest image
+      run: docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+
+    - name: Stop old container
+      run: docker stop devops-app || true
+
+    - name: Remove old container
+      run: docker rm devops-app || true
+
+    - name: Run new container
+      run: docker run -d -p 80:80 --name devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
